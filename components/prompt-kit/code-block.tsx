@@ -1,0 +1,114 @@
+"use client";
+
+import { cn } from "@/lib/utils";
+import { useTheme } from "next-themes";
+import type React from "react";
+import { useEffect, useState } from "react";
+import { codeToHtml } from "shiki";
+
+export type CodeBlockProps = {
+  children?: React.ReactNode;
+  className?: string;
+} & React.HTMLProps<HTMLDivElement>;
+
+function CodeBlock({ children, className, ...props }: CodeBlockProps) {
+  return (
+    <div
+      className={cn(
+        "not-prose flex w-full flex-col overflow-clip border",
+        "rounded-xl border-border bg-card text-card-foreground",
+        className
+      )}
+      {...props}
+    >
+      {children}
+    </div>
+  );
+}
+
+export type CodeBlockCodeProps = {
+  code: string;
+  language?: string;
+  theme?: string;
+  className?: string;
+} & React.HTMLProps<HTMLDivElement>;
+
+function CodeBlockCode({
+  code,
+  language = "tsx",
+  theme = "github-light",
+  className,
+  ...props
+}: CodeBlockCodeProps) {
+  const { resolvedTheme: appTheme } = useTheme();
+  const [highlightedHtml, setHighlightedHtml] = useState<string | null>(null);
+  const [isClient, setIsClient] = useState(false);
+
+  // Ensure we have valid code content
+  const safeCode = typeof code === "string" ? code : String(code || "");
+  const safeLanguage = typeof language === "string" ? language : "plaintext";
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  useEffect(() => {
+    if (!(isClient && safeCode)) {
+      setHighlightedHtml(null);
+      return;
+    }
+
+    async function highlight() {
+      try {
+        const html = await codeToHtml(safeCode, {
+          lang: safeLanguage,
+          theme: appTheme === "dark" ? "github-dark" : "github-light",
+        });
+        setHighlightedHtml(html);
+      } catch {
+        // Fallback to plain text if highlighting fails
+        setHighlightedHtml(null);
+      }
+    }
+    highlight();
+  }, [safeCode, safeLanguage, appTheme, isClient]);
+
+  const classNames = cn(
+    "[&>pre]:!bg-background w-full overflow-x-auto text-[13px] [&>pre]:px-4 [&>pre]:py-4",
+    className
+  );
+
+  // SSR fallback: render plain code if not hydrated yet
+  return highlightedHtml ? (
+    <div
+      className={classNames}
+      dangerouslySetInnerHTML={{ __html: highlightedHtml }}
+      {...props}
+    />
+  ) : (
+    <div className={classNames} {...props}>
+      <pre>
+        <code>{safeCode}</code>
+      </pre>
+    </div>
+  );
+}
+
+export type CodeBlockGroupProps = React.HTMLAttributes<HTMLDivElement>;
+
+function CodeBlockGroup({
+  children,
+  className,
+  ...props
+}: CodeBlockGroupProps) {
+  return (
+    <div
+      className={cn("flex items-center justify-between", className)}
+      {...props}
+    >
+      {children}
+    </div>
+  );
+}
+
+export { CodeBlock, CodeBlockCode, CodeBlockGroup };
