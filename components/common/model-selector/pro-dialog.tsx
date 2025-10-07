@@ -1,0 +1,143 @@
+"use client";
+
+import { useBreakpoint } from "@/app/hooks/use-breakpoint";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+} from "@/components/ui/drawer";
+import { APP_NAME } from "@/lib/config";
+import { createClient } from "@/lib/supabase/client";
+import { useUser } from "@/lib/user-store/provider";
+import { useMutation } from "@tanstack/react-query";
+import Image from "next/image";
+
+type ProModelDialogProps = {
+  isOpen: boolean;
+  setIsOpen: (isOpen: boolean) => void;
+  currentModel: string;
+};
+
+export function ProModelDialog({
+  isOpen,
+  setIsOpen,
+  currentModel,
+}: ProModelDialogProps) {
+  const { user } = useUser();
+  const mobileBreakpoint = 768;
+  const isMobile = useBreakpoint(mobileBreakpoint);
+  const mutation = useMutation({
+    mutationFn: async () => {
+      if (!user?.id) {
+        throw new Error("Missing user");
+      }
+
+      const supabase = await createClient();
+      if (!supabase) {
+        throw new Error("Missing supabase");
+      }
+      const { error } = await supabase.from("feedback").insert({
+        message: `I want access to ${currentModel}`,
+        // biome-ignore lint/style/useNamingConvention: Database column name must match schema
+        user_id: user.id,
+      });
+
+      if (error) {
+        throw new Error(error.message);
+      }
+    },
+  });
+
+  const renderContent = () => (
+    <div className="flex max-h-[70vh] flex-col" key={currentModel}>
+      <div className="relative">
+        <Image
+          alt={`calm paint generate by ${APP_NAME}`}
+          className="h-32 w-full object-cover"
+          height={128}
+          src="/banner_ocean.jpg"
+          width={400}
+        />
+      </div>
+
+      <div className="px-6 pt-4 text-center font-medium text-lg leading-tight">
+        This model is only available to Yodoo Pro users
+      </div>
+
+      <div className="flex-grow overflow-y-auto">
+        <div className="px-6 py-4">
+          <p className="text-muted-foreground">
+            To use it, upgrade to Yodoo Pro or add your own API key. Yodoo supports BYOK via{" "}
+            <span className="inline-flex font-medium text-primary">
+              OpenRouter
+            </span>
+            .
+          </p>
+          <p className="mt-1 text-muted-foreground">
+            Go to{" "}
+            <span className="inline-flex font-medium text-primary">
+              Settings → API Keys
+            </span>{" "}
+            to add your key securely.
+          </p>
+         
+          {mutation.isSuccess ? (
+            <div className="mt-5 flex justify-center gap-3">
+              <Badge className="bg-green-600 text-white">
+                Thanks! We&apos;ll keep you updated
+              </Badge>
+            </div>
+          ) : (
+            <div className="mt-5 flex justify-center gap-3">
+              <Button
+                className="w-full"
+                disabled={mutation.isPending}
+                onClick={() => mutation.mutate()}
+                size="sm"
+              >
+                {mutation.isPending ? "Sending..." : "Request access"}
+              </Button>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+
+  if (isMobile) {
+    return (
+      <Drawer onOpenChange={setIsOpen} open={isOpen}>
+        <DrawerContent className="px-0">
+          <DrawerHeader className="sr-only">
+            <DrawerTitle>Pro Model Access Required</DrawerTitle>
+          </DrawerHeader>
+          {renderContent()}
+        </DrawerContent>
+      </Drawer>
+    );
+  }
+
+  return (
+    <Dialog onOpenChange={setIsOpen} open={isOpen}>
+      <DialogContent className="gap-0 overflow-hidden rounded-3xl p-0 shadow-xs sm:max-w-md [&>button:last-child]:rounded-full [&>button:last-child]:bg-background [&>button:last-child]:p-1">
+        <DialogHeader className="sr-only">
+          <DialogTitle>Pro Model Access Required</DialogTitle>
+          <DialogDescription>
+            This model requires a Pro subscription to access.
+          </DialogDescription>
+        </DialogHeader>
+        {renderContent()}
+      </DialogContent>
+    </Dialog>
+  );
+}
