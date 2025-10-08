@@ -501,16 +501,6 @@ npm run dev
 
 The application will be available at [http://localhost:3000](http://localhost:3000).
 
-## Supabase Setup
-
-Yodoo requires Supabase for authentication and storage. Follow these steps to set up your Supabase project:
-
-1. Create a new project at [Supabase](https://supabase.com)
-2. Set up the database schema using the SQL script below
-3. Create storage buckets for chat attachments
-4. Configure authentication providers (Google OAuth)
-5. Get your API keys and add them to your `.env.local` file
-
 ## Docker Installation
 
 ### Option 1: Single Container with Docker

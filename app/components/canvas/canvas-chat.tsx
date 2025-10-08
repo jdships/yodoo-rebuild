@@ -1,11 +1,9 @@
 "use client";
 
-import { Conversation } from "@/app/components/chat/conversation";
 import { useFileUpload } from "@/app/components/chat/use-file-upload";
 import { useChatDraft } from "@/app/hooks/use-chat-draft";
 import { Button } from "@/components/ui/button";
 import { useChats } from "@/lib/chat-store/chats/provider";
-import { useMessages } from "@/lib/chat-store/messages/provider";
 import { useChatSession } from "@/lib/chat-store/session/provider";
 import { FREE_MAX_MODELS, PRO_MAX_MODELS, UNLIMITED_MAX_MODELS } from "@/lib/config";
 import { useModel } from "@/lib/model-store/provider";
@@ -16,6 +14,7 @@ import { hasActiveSubscription, isUnlimitedUser } from "@/lib/user/types";
 import { ArrowUp, Stop } from "@phosphor-icons/react";
 import { FileText } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
+import { CanvasConversation } from "./canvas-conversation";
 import { CanvasModelSelector } from "./canvas-model-selector";
 import { MobileCanvasSheet } from "./mobile-canvas-sheet";
 
@@ -23,12 +22,27 @@ type CanvasChatProps = {
   selectedModelIds: string[];
   onSelectedModelIdsChange: (modelIds: string[]) => void;
   showCanvasButton?: boolean;
+  conversation: any[];
+  onAddMessage: (content: string, selectedModelIds: string[]) => void;
+  onAddResponse: (response: any) => void;
+  onAddToDocument: (content: string) => void;
+  onReplaceDocument?: (content: string) => void;
+  onClearResponses?: () => void;
 };
 
-export function CanvasChat({ selectedModelIds, onSelectedModelIdsChange, showCanvasButton = false }: CanvasChatProps) {
+export function CanvasChat({ 
+  selectedModelIds, 
+  onSelectedModelIdsChange, 
+  showCanvasButton = false,
+  conversation,
+  onAddMessage,
+  onAddResponse,
+  onAddToDocument,
+  onReplaceDocument,
+  onClearResponses
+}: CanvasChatProps) {
   const { chatId } = useChatSession();
   const { getChatById, updateChatModel } = useChats();
-  const { messages: initialMessages } = useMessages();
   const { user } = useUser();
   const { preferences } = useUserPreferences();
   const { draftValue } = useChatDraft(chatId);
@@ -56,12 +70,40 @@ export function CanvasChat({ selectedModelIds, onSelectedModelIdsChange, showCan
   const [input, setInput] = useState(draftValue || "");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [enableSearch, setEnableSearch] = useState(false);
+  const [activeModelId, setActiveModelId] = useState<string | null>(null);
   const [quotedText, setQuotedText] = useState<{
     text: string;
     messageId: string;
   }>();
 
   const isAuthenticated = useMemo(() => !!user?.id, [user?.id]);
+
+  // Filter conversation based on active model
+  const filteredConversation = useMemo(() => {
+    if (activeModelId === null) {
+      return conversation;
+    }
+    
+    // For a specific model, only show:
+    // 1. User messages that were sent ONLY to that model (not to multiple models)
+    // 2. Assistant responses from that specific model
+    const filtered = conversation.filter(msg => {
+      if (msg.role === 'user') {
+        // Only show user messages that were sent ONLY to this model
+        const wasSentOnlyToThisModel = msg.selectedModelIds?.length === 1 && msg.selectedModelIds.includes(activeModelId);
+        console.log(`User message "${msg.content}" for models [${msg.selectedModelIds?.join(', ')}] - showing for ${activeModelId}: ${wasSentOnlyToThisModel}`);
+        return wasSentOnlyToThisModel;
+      } else {
+        // Only show assistant responses from this model
+        const shouldShow = msg.modelId === activeModelId;
+        console.log(`Assistant message from ${msg.modelId} - showing for ${activeModelId}: ${shouldShow}`);
+        return shouldShow;
+      }
+    });
+    
+    console.log(`Filtered conversation for ${activeModelId}:`, filtered);
+    return filtered;
+  }, [conversation, activeModelId]);
 
   // Determine max models based on subscription
   const maxModels = useMemo(() => {
@@ -78,17 +120,45 @@ export function CanvasChat({ selectedModelIds, onSelectedModelIdsChange, showCan
     return FREE_MAX_MODELS; // 2 models
   }, [user]);
 
-  // Simplified handlers for canvas mode
-  const handleSend = useCallback(() => {
-    if (!input.trim()) return;
+  // Canvas mode handlers for multiple models
+  const handleSend = useCallback(async () => {
+    if (!input.trim() || selectedModelIds.length === 0) return;
+    
+    // Add user message to history with selected model IDs
+    onAddMessage(input, selectedModelIds);
+    
     setIsSubmitting(true);
-    // TODO: Implement actual send logic for canvas
-    console.log("Sending message:", input);
-    setTimeout(() => {
+    
+    try {
+      // Send to all selected models
+      const promises = selectedModelIds.map(async (modelId) => {
+        const model = models.find((m: any) => m.id === modelId);
+        if (!model) return;
+
+        // Simulate API call - replace with actual implementation
+        await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 2000));
+        
+        const timestamp = new Date().toISOString();
+        const mockResponse = `This is a mock response from ${model.name} for: "${input}"\n\nResponse generated at: ${timestamp}\n\nLorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.`;
+        
+        console.log(`Adding response for model: ${model.id} (${model.name})`);
+        
+        onAddResponse({
+          modelId: model.id,
+          modelName: model.name,
+          providerIcon: model.icon,
+          content: mockResponse,
+        });
+      });
+
+      await Promise.all(promises);
       setInput("");
+    } catch (error) {
+      console.error("Error sending messages:", error);
+    } finally {
       setIsSubmitting(false);
-    }, 1000);
-  }, [input]);
+    }
+  }, [input, selectedModelIds, models, onAddResponse]);
 
   const handleSuggestion = useCallback((suggestion: string) => {
     setInput(suggestion);
@@ -124,6 +194,16 @@ export function CanvasChat({ selectedModelIds, onSelectedModelIdsChange, showCan
       <div className="flex h-14 items-center justify-between border-b border-t px-4">
         <div className="flex items-center gap-2">
           <span className="font-medium text-sm">Canvas Mode</span>
+          {conversation.length > 0 && onClearResponses && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onClearResponses}
+              className="h-7 px-2 text-xs text-muted-foreground hover:text-foreground"
+            >
+              Clear
+            </Button>
+          )}
         </div>
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-1 overflow-x-auto">
@@ -133,7 +213,7 @@ export function CanvasChat({ selectedModelIds, onSelectedModelIdsChange, showCan
                 return (
                   <div
                     key={model.id}
-                    className="flex items-center gap-1.5 rounded-md bg-background/80 border border-border/50 px-2 py-1 text-xs shadow-sm whitespace-nowrap flex-shrink-0"
+                    className="flex items-center gap-1.5 px-2 py-1 text-xs shadow-sm whitespace-nowrap flex-shrink-0"
                   >
                     {provider?.icon && <provider.icon className="size-3.5" />}
                     <span className="font-medium text-foreground hidden sm:inline">{model.name}</span>
@@ -160,26 +240,45 @@ export function CanvasChat({ selectedModelIds, onSelectedModelIdsChange, showCan
         </div>
       </div>
 
-      {/* Chat messages */}
-      <div className="flex-1 overflow-hidden">
-        {initialMessages.length > 0 ? (
-          <Conversation
-            messages={initialMessages}
-            onDelete={handleDelete}
-            onEdit={handleEdit}
-            onReload={handleReload}
-            onQuote={handleQuotedSelected}
-          />
-        ) : (
-          <div className="flex h-full items-center justify-center">
-            <div className="text-center">
-              <p className="text-muted-foreground text-sm">Start a conversation</p>
-              <p className="text-muted-foreground text-xs mt-1">
-                Your messages will appear here
-              </p>
-            </div>
+      {/* Model tabs - only show if there are responses */}
+      {conversation.some(msg => msg.role === 'assistant') && (
+        <div className="border-b px-4 py-2">
+          <div className="flex gap-2 overflow-x-auto">
+            {/* Individual model tabs */}
+            {selectedModels.map((model: any) => {
+              const provider = PROVIDERS.find((p) => p.id === model.icon);
+              const hasResponse = conversation.some(msg => msg.modelId === model.id);
+              return (
+                <div
+                  key={model.id}
+                  className={`flex items-center gap-2 rounded-md px-3 py-2 text-xs cursor-pointer transition-colors ${
+                    activeModelId === model.id
+                      ? 'bg-primary/10 text-primary border border-primary/20' 
+                      : hasResponse
+                      ? 'bg-muted/50 text-muted-foreground hover:bg-muted/70'
+                      : 'bg-muted/30 text-muted-foreground/50'
+                  }`}
+                  onClick={() => hasResponse && setActiveModelId(model.id)}
+                >
+                  {provider?.icon && <provider.icon className="size-4" />}
+                  <span className="font-medium">{model.name}</span>
+                  {hasResponse && (
+                    <div className="size-2 rounded-full bg-primary" />
+                  )}
+                </div>
+              );
+            })}
           </div>
-        )}
+        </div>
+      )}
+
+      {/* Conversation */}
+      <div className="flex-1 overflow-hidden">
+        <CanvasConversation
+          conversation={filteredConversation}
+          onAddToDocument={onAddToDocument}
+          onReplaceDocument={onReplaceDocument}
+        />
       </div>
 
       {/* Chat input */}

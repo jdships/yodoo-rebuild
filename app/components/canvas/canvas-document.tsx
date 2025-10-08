@@ -2,14 +2,18 @@
 
 import { Button } from "@/components/ui/button";
 import { Download, FileText, MoreHorizontal, Share } from "lucide-react";
-import { useState } from "react";
 
 type CanvasDocumentProps = {
   showHeader?: boolean;
+  documentContent: string;
+  onDocumentChange: (content: string) => void;
 };
 
-export function CanvasDocument({ showHeader = true }: CanvasDocumentProps) {
-  const [documentContent, setDocumentContent] = useState("# Untitled Document\n\nStart writing your document here...");
+export function CanvasDocument({ 
+  showHeader = true, 
+  documentContent, 
+  onDocumentChange 
+}: CanvasDocumentProps) {
 
   return (
     <div className="flex h-full flex-col">
@@ -42,7 +46,7 @@ export function CanvasDocument({ showHeader = true }: CanvasDocumentProps) {
           <div className="min-h-full rounded-lg border p-8 bg-sidebar">
             <textarea
               value={documentContent}
-              onChange={(e) => setDocumentContent(e.target.value)}
+              onChange={(e) => onDocumentChange(e.target.value)}
               className="min-h-[600px] w-full resize-none border-none bg-transparent text-foreground outline-none placeholder:text-muted-foreground"
               placeholder="Start writing your document..."
             />

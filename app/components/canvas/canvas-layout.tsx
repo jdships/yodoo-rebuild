@@ -1,5 +1,6 @@
 "use client";
 
+import { useCanvasResponses } from "@/app/hooks/use-canvas-responses";
 import { useIsMobile } from "@/app/hooks/use-mobile";
 import { useState } from "react";
 import { CanvasChat } from "./canvas-chat";
@@ -8,9 +9,15 @@ import { CanvasDocument } from "./canvas-document";
 export function CanvasLayout() {
   const [selectedModelIds, setSelectedModelIds] = useState<string[]>(["gpt-4.1-nano"]);
   const isMobile = useIsMobile();
+  const canvasState = useCanvasResponses();
 
   const handleSelectedModelIdsChange = (modelIds: string[]) => {
     setSelectedModelIds(modelIds);
+    // Don't clear responses when models change - let users add more models
+  };
+
+  const handleAddMessage = (content: string) => {
+    canvasState.addMessage(content, selectedModelIds);
   };
 
   // Mobile layout: Full page chat with canvas sheet
@@ -23,6 +30,12 @@ export function CanvasLayout() {
             selectedModelIds={selectedModelIds}
             onSelectedModelIdsChange={handleSelectedModelIdsChange}
             showCanvasButton={true}
+            conversation={canvasState.conversation}
+            onAddMessage={handleAddMessage}
+            onAddResponse={canvasState.addResponse}
+            onAddToDocument={canvasState.addToDocument}
+            onReplaceDocument={canvasState.replaceDocument}
+            onClearResponses={canvasState.clearResponses}
           />
         </div>
       </div>
@@ -40,12 +53,21 @@ export function CanvasLayout() {
             selectedModelIds={selectedModelIds}
             onSelectedModelIdsChange={handleSelectedModelIdsChange}
             showCanvasButton={false}
+            conversation={canvasState.conversation}
+            onAddMessage={handleAddMessage}
+            onAddResponse={canvasState.addResponse}
+            onAddToDocument={canvasState.addToDocument}
+            onReplaceDocument={canvasState.replaceDocument}
+            onClearResponses={canvasState.clearResponses}
           />
         </div>
         
         {/* Document section - 3/5 width on desktop */}
         <div className="flex w-3/5 flex-col bg-background">
-          <CanvasDocument />
+          <CanvasDocument 
+            documentContent={canvasState.documentContent}
+            onDocumentChange={canvasState.updateDocument}
+          />
         </div>
       </div>
     </div>
