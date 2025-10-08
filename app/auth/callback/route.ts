@@ -70,5 +70,7 @@ export async function GET(request: Request) {
   const safeNext = next.startsWith("/") ? next : "/";
   const redirectUrl = `${protocol}://${host}${safeNext}`;
 
+  await new Promise(resolve => setTimeout(resolve, 100));
+
   return NextResponse.redirect(redirectUrl);
 }
