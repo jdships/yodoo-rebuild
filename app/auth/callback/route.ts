@@ -8,6 +8,7 @@ export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
   const next = searchParams.get("next") ?? "/";
+  
 
   if (!isSupabaseEnabled) {
     return NextResponse.redirect(
@@ -33,6 +34,7 @@ export async function GET(request: Request) {
   const { data, error } = await supabase.auth.exchangeCodeForSession(code);
 
   if (error) {
+    console.error("Auth callback error:", error);
     return NextResponse.redirect(
       `${origin}/auth/error?message=${encodeURIComponent(error.message)}`
     );
@@ -50,10 +52,10 @@ export async function GET(request: Request) {
     const { error: insertError } = await supabaseAdmin.from("users").insert({
       id: user.id,
       email: user.email,
-      createdAt: new Date().toISOString(),
-      messageCount: 0,
+      created_at: new Date().toISOString(),
+      message_count: 0,
       premium: false,
-      favoriteModels: [MODEL_DEFAULT],
+      favorite_models: [MODEL_DEFAULT],
     });
 
     if (insertError && insertError.code !== "23505") {
