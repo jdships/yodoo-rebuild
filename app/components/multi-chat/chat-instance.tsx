@@ -3,7 +3,7 @@
 import { Loader } from "@/components/prompt-kit/loader";
 import { getModelInfo } from "@/lib/models";
 import { PROVIDERS } from "@/lib/providers";
-import type { Message as MessageType } from "@ai-sdk/react";
+import type { Message as MessageType } from "ai/react";
 import { ArrowDown, ChevronDown, Maximize2 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Message } from "../chat/message";

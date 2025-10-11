@@ -1,12 +1,12 @@
 "use client";
 import {
-	Tooltip,
-	TooltipContent,
-	TooltipTrigger
+    Tooltip,
+    TooltipContent,
+    TooltipTrigger
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
-import { motion } from "framer-motion";
 import { Moon, Sun } from "lucide-react";
+import { motion } from "motion/react";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 

@@ -8,7 +8,7 @@ import { useChatSession } from "@/lib/chat-store/session/provider";
 import { SYSTEM_PROMPT_DEFAULT } from "@/lib/config";
 import { useModel } from "@/lib/model-store/provider";
 import { useUser } from "@/lib/user-store/provider";
-import type { Message as MessageType } from "@ai-sdk/react";
+import type { Message as MessageType } from "ai/react";
 import { useCallback, useMemo, useState } from "react";
 import { MultiChatInput } from "./multi-chat-input";
 import { useMultiChat } from "./use-multi-chat";

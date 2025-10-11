@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import type { Message as MessageType } from "@ai-sdk/react";
+import type { Message as MessageType } from "ai/react";
 import { useState } from "react";
 import { ChatInstance } from "./chat-instance";
 

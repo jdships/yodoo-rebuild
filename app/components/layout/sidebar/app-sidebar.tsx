@@ -8,20 +8,20 @@ import { useKeyShortcut } from "@/app/hooks/use-key-shortcut";
 import { Logo } from "@/components/icons/yodoo";
 import { Button } from "@/components/ui/button";
 import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  useSidebar,
+    Sidebar,
+    SidebarContent,
+    SidebarFooter,
+    SidebarHeader,
+    SidebarMenu,
+    SidebarMenuButton,
+    SidebarMenuItem,
+    useSidebar,
 } from "@/components/ui/sidebar";
 import { useChats } from "@/lib/chat-store/chats/provider";
 import { cn } from "@/lib/utils";
 import { ChatTeardropText, X } from "@phosphor-icons/react";
-import { motion } from "framer-motion";
 import { Newspaper, Pin, Plus, Search, Wrench } from "lucide-react";
+import { motion } from "motion/react";
 import Link from "next/link";
 import { useParams, usePathname, useRouter } from "next/navigation";
 import { useMemo } from "react";

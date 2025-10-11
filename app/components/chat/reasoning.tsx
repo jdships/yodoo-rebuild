@@ -1,7 +1,7 @@
 import { Markdown } from "@/components/prompt-kit/markdown";
 import { cn } from "@/lib/utils";
 import { CaretDownIcon } from "@phosphor-icons/react";
-import { AnimatePresence, motion, type Transition } from "framer-motion";
+import { AnimatePresence, motion, type Transition } from "motion/react";
 import { useState } from "react";
 
 type ReasoningProps = {

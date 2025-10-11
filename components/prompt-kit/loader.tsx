@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, type Transition } from "framer-motion";
+import { motion, type Transition } from "motion/react";
 
 // Style constants
 const DOT_SIZE = "size-2";

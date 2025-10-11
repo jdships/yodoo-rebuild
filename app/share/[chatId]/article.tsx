@@ -1,12 +1,12 @@
-import type { Message as MessageAisdk } from "@ai-sdk/react";
-import { ArrowUpRight } from "@phosphor-icons/react/dist/ssr";
-import Link from "next/link";
 import { getSources } from "@/app/components/chat/get-sources";
 import { SourcesList } from "@/app/components/chat/sources-list";
 import type { Tables } from "@/app/types/database.types";
 import { Message, MessageContent } from "@/components/prompt-kit/message";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { ArrowUpRight } from "@phosphor-icons/react/dist/ssr";
+import type { Message as MessageAisdk } from "ai/react";
+import Link from "next/link";
 import { Header } from "./header";
 
 type MessageType = Tables<"messages">;
