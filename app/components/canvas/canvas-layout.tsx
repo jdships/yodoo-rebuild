@@ -7,17 +7,12 @@ import { CanvasChat } from "./canvas-chat";
 import { CanvasDocument } from "./canvas-document";
 
 export function CanvasLayout() {
-  const [selectedModelIds, setSelectedModelIds] = useState<string[]>(["gpt-4.1-nano"]);
+  const [selectedModelIds, setSelectedModelIds] = useState<string[]>([]);
   const isMobile = useIsMobile();
   const canvasState = useCanvasResponses();
 
   const handleSelectedModelIdsChange = (modelIds: string[]) => {
     setSelectedModelIds(modelIds);
-    // Don't clear responses when models change - let users add more models
-  };
-
-  const handleAddMessage = (content: string) => {
-    canvasState.addMessage(content, selectedModelIds);
   };
 
   // Mobile layout: Full page chat with canvas sheet
@@ -26,16 +21,15 @@ export function CanvasLayout() {
       <div className="flex h-screen w-full flex-col">
         {/* Chat section - full width on mobile */}
         <div className="flex w-full flex-1 flex-col bg-background">
-          <CanvasChat 
+          <CanvasChat
             selectedModelIds={selectedModelIds}
             onSelectedModelIdsChange={handleSelectedModelIdsChange}
             showCanvasButton={true}
-            conversation={canvasState.conversation}
-            onAddMessage={handleAddMessage}
-            onAddResponse={canvasState.addResponse}
             onAddToDocument={canvasState.addToDocument}
             onReplaceDocument={canvasState.replaceDocument}
-            onClearResponses={canvasState.clearResponses}
+            onFirstResponse={canvasState.handleFirstResponse}
+            documentContent={canvasState.documentContent}
+            onDocumentChange={canvasState.updateDocument}
           />
         </div>
       </div>
@@ -49,22 +43,19 @@ export function CanvasLayout() {
       <div className="flex flex-1 overflow-hidden">
         {/* Chat section - 2/5 width on desktop */}
         <div className="flex w-2/5 flex-col border-r bg-background">
-          <CanvasChat 
+          <CanvasChat
             selectedModelIds={selectedModelIds}
             onSelectedModelIdsChange={handleSelectedModelIdsChange}
             showCanvasButton={false}
-            conversation={canvasState.conversation}
-            onAddMessage={handleAddMessage}
-            onAddResponse={canvasState.addResponse}
             onAddToDocument={canvasState.addToDocument}
             onReplaceDocument={canvasState.replaceDocument}
-            onClearResponses={canvasState.clearResponses}
+            onFirstResponse={canvasState.handleFirstResponse}
           />
         </div>
-        
+
         {/* Document section - 3/5 width on desktop */}
         <div className="flex w-3/5 flex-col bg-background">
-          <CanvasDocument 
+          <CanvasDocument
             documentContent={canvasState.documentContent}
             onDocumentChange={canvasState.updateDocument}
           />

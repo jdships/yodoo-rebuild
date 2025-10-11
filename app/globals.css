@@ -3,6 +3,10 @@
 @import "tw-animate-css";
 @plugin "@tailwindcss/typography";
 
+/* Tiptap Editor Styles */
+@import '../styles/_variables.scss';
+@import '../styles/_keyframe-animations.scss';
+
 @custom-variant dark (&:is(.dark *));
 
 @theme {
@@ -162,4 +166,51 @@ code {
 /* sonner toast */
 [data-sonner-toaster] > li {
   width: 100%;
+}
+
+/* Canvas Editor - Override Tiptap default viewport sizing */
+.canvas-editor-container .simple-editor-wrapper {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100% !important;
+  overflow: auto;
+}
+
+.canvas-editor-container .simple-editor-content {
+  max-width: 100%;
+  width: 100%;
+  margin: 0; /* Remove centering */
+  padding: 0;
+}
+
+/* Match header padding (px-4 = 1rem) */
+.canvas-editor-container .simple-editor-content .tiptap.ProseMirror.simple-editor {
+  padding: 1rem 1rem 30vh !important;
+  margin-top: 30px;
+  margin-left: 2rem;
+  margin-right: 2rem;
+}
+
+/* Fix Tiptap dropdown menus positioning and z-index */
+[data-radix-popper-content-wrapper] {
+  z-index: 9999 !important;
+}
+
+[data-radix-dropdown-menu-content],
+[data-radix-popover-content] {
+  z-index: 9999 !important;
+}
+
+.tiptap-dropdown-menu {
+  z-index: 9999 !important;
+}
+
+/* Prevent editor focus stealing when interacting with toolbar */
+.tiptap-toolbar button:focus,
+.tiptap-toolbar [role="button"]:focus {
+  outline: none;
+}
+
+.tiptap.ProseMirror:focus {
+  outline: none;
 }

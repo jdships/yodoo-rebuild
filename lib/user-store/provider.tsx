@@ -3,11 +3,10 @@
 import {
   fetchUserProfile,
   signOutUser,
-  subscribeToUserUpdates,
-  updateUserProfile,
+  updateUserProfile
 } from "@/lib/user-store/api";
 import type { UserProfile } from "@/lib/user/types";
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useState } from "react";
 
 type UserContextType = {
   user: UserProfile | null;
@@ -66,17 +65,19 @@ export function UserProvider({
   };
 
   // Set up realtime subscription for user data changes
-  useEffect(() => {
-    if (!user?.id) return;
+  // TEMPORARILY DISABLED - Causing excessive database load due to Supabase capacity issues
+  // Re-enable when Supabase infrastructure stabilizes
+  // useEffect(() => {
+  //   if (!user?.id) return;
 
-    const unsubscribe = subscribeToUserUpdates(user.id, (newData) => {
-      setUser((prev) => (prev ? { ...prev, ...newData } : null));
-    });
+  //   const unsubscribe = subscribeToUserUpdates(user.id, (newData) => {
+  //     setUser((prev) => (prev ? { ...prev, ...newData } : null));
+  //   });
 
-    return () => {
-      unsubscribe();
-    };
-  }, [user?.id]);
+  //   return () => {
+  //     unsubscribe();
+  //   };
+  // }, [user?.id]);
 
   return (
     <UserContext.Provider

@@ -62,7 +62,10 @@ export async function updateSession(request: NextRequest) {
 
     // If there's an auth error (like invalid refresh token), we should handle it gracefully
     if (error) {
-      console.warn("Auth error in middleware:", error.message);
+      // Only log non-session-missing errors to reduce noise
+      if (!error.message.includes("Auth session missing")) {
+        console.warn("Auth error in middleware:", error.message);
+      }
       
       // If it's a refresh token error, we should clear the session to prevent repeated errors
       if (error.message.includes("refresh_token_not_found") || 
@@ -71,7 +74,7 @@ export async function updateSession(request: NextRequest) {
           // Clear the invalid session
           await supabase.auth.signOut();
         } catch (signOutError) {
-          console.warn("Failed to clear invalid session:", signOutError);
+          // Silently handle signout errors
         }
       }
       
@@ -80,9 +83,14 @@ export async function updateSession(request: NextRequest) {
     } else {
       user = authUser;
     }
-  } catch (error) {
+  } catch (error: any) {
     // Catch any unexpected errors from getUser()
-    console.error("Unexpected auth error in middleware:", error);
+    // Only log non-session-missing errors and non-JSON-parsing errors
+    if (error?.message && 
+        !error.message.includes("Auth session missing") &&
+        !error.message.includes("<!DOCTYPE")) {
+      console.error("Unexpected auth error in middleware:", error);
+    }
     user = null;
   }
 

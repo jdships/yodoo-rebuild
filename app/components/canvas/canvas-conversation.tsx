@@ -1,17 +1,19 @@
 "use client";
 
-import { ConversationMessage } from "@/app/hooks/use-canvas-responses";
+import { Loader } from "@/components/prompt-kit/loader";
 import { Button } from "@/components/ui/button";
+import { markdownToHTML } from "@/lib/markdown-to-html";
 import { PROVIDERS } from "@/lib/providers";
+import type { Message } from "ai/react";
 import { Check, Copy } from "lucide-react";
 import { useState } from "react";
 import { MessageAssistant } from "../chat/message-assistant";
-import { MessageUser } from "../chat/message-user";
 
 type CanvasConversationProps = {
-  conversation: ConversationMessage[];
+  conversation: Message[];
   onAddToDocument: (content: string) => void;
   onReplaceDocument?: (content: string) => void;
+  isLoading?: boolean;
   className?: string;
 };
 
@@ -19,6 +21,7 @@ export function CanvasConversation({
   conversation, 
   onAddToDocument,
   onReplaceDocument,
+  isLoading = false,
   className = "" 
 }: CanvasConversationProps) {
   const [copiedStates, setCopiedStates] = useState<Record<string, boolean>>({});
@@ -50,52 +53,111 @@ export function CanvasConversation({
 
   return (
     <div className={`flex h-full flex-col overflow-auto ${className}`}>
-      <div className="space-y-4 p-4">
+      <div className="mx-auto flex w-full max-w-5xl flex-col space-y-4 px-4 py-4 pb-24">
         {conversation.map((message) => {
           const isCopied = copiedStates[message.id];
-          
-          if (message.role === 'user') {
+
+          // Extract text content from message
+          let content = "";
+          if (typeof message.content === "string") {
+            content = message.content;
+          } else if (message.content && Array.isArray(message.content)) {
+            content = (message.content as any[])
+              .filter((part: any) => part.type === "text")
+              .map((part: any) => part.text)
+              .join("\n");
+          }
+
+          if (message.role === "user") {
             return (
-              <MessageUser
-                key={message.id}
-                className="w-full"
-                copied={isCopied}
-                onCopy={() => handleCopy(message.content, message.id)}
-              >
-                {message.content}
-              </MessageUser>
+              <div key={message.id} className="flex w-full max-w-3xl flex-col items-end gap-0.5">
+                <div className="prose dark:prose-invert relative max-w-[70%] rounded-3xl bg-accent px-5 py-2.5">
+                  {content}
+                </div>
+                <div className="flex gap-0 opacity-0 hover:opacity-100 transition-opacity">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleCopy(content, message.id)}
+                    className="size-7.5 rounded-full hover:bg-accent/60"
+                  >
+                    {isCopied ? (
+                      <Check className="size-4" />
+                    ) : (
+                      <Copy className="size-4" />
+                    )}
+                  </Button>
+                </div>
+              </div>
             );
-          } else {
-            // Assistant message with model info and action buttons
-            const provider = PROVIDERS.find((p) => p.id === message.providerIcon);
-            
+          }
+
+          if (message.role === "assistant") {
+            // Get model info from message metadata
+            const modelId = (message as any).model;
+            const modelName = (message as any).modelName;
+
+            // Find provider icon based on model ID
+            let ProviderIcon = null;
+            if (modelId) {
+              // Extract provider from model ID
+              let providerId = "";
+              if (modelId.includes("gpt") || modelId.includes("o1")) {
+                providerId = "openai";
+              } else if (modelId.includes("claude")) {
+                providerId = "anthropic";
+              } else if (modelId.includes("gemini")) {
+                providerId = "google";
+              } else if (modelId.includes("deepseek")) {
+                providerId = "deepseek";
+              } else if (modelId.includes("llama")) {
+                providerId = "meta";
+              } else if (modelId.includes("mistral")) {
+                providerId = "mistral";
+              } else if (modelId.includes("grok")) {
+                providerId = "xai";
+              }
+              const provider = PROVIDERS.find((p) => p.id === providerId);
+              if (provider) {
+                ProviderIcon = provider.icon;
+              }
+            }
+
+            const timestamp = message.createdAt
+              ? new Date(message.createdAt)
+              : new Date();
+
             return (
-              <div key={message.id} className="w-full">
+              <div key={message.id} className="w-full max-w-3xl">
                 <MessageAssistant
                   className="w-full"
                   copied={isCopied}
-                  onCopy={() => handleCopy(message.content, message.id)}
+                  copyToClipboard={() => handleCopy(content, message.id)}
+                  messageId={message.id}
+                  parts={message.parts}
                 >
-                  {message.content}
+                  {content}
                 </MessageAssistant>
-                
+
                 {/* Model info and action buttons */}
                 <div className="mt-2 flex items-center justify-between rounded-lg bg-muted/30 px-3 py-2">
                   <div className="flex items-center gap-2">
-                    {provider?.icon && <provider.icon className="size-4" />}
-                    <span className="text-sm font-medium text-muted-foreground">
-                      {message.modelName}
-                    </span>
+                    {ProviderIcon && <ProviderIcon className="size-4" />}
+                    {modelName && (
+                      <span className="text-sm font-medium text-muted-foreground">
+                        {modelName}
+                      </span>
+                    )}
                     <span className="text-xs text-muted-foreground">
-                      {message.timestamp.toLocaleTimeString()}
+                      {timestamp.toLocaleTimeString()}
                     </span>
                   </div>
-                  
+
                   <div className="flex items-center gap-1">
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => handleCopy(message.content, message.id)}
+                      onClick={() => handleCopy(content, message.id)}
                       className="h-7 px-2 text-xs"
                     >
                       {isCopied ? (
@@ -110,7 +172,7 @@ export function CanvasConversation({
                     <Button
                       variant="default"
                       size="sm"
-                      onClick={() => onAddToDocument(message.content)}
+                      onClick={() => onAddToDocument(markdownToHTML(content))}
                       className="h-7 px-2 text-xs"
                     >
                       Add to Document
@@ -119,7 +181,7 @@ export function CanvasConversation({
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => onReplaceDocument(message.content)}
+                        onClick={() => onReplaceDocument(markdownToHTML(content))}
                         className="h-7 px-2 text-xs"
                       >
                         Replace Document
@@ -130,7 +192,16 @@ export function CanvasConversation({
               </div>
             );
           }
+
+          return null;
         })}
+        
+        {/* Show thinking indicator when loading */}
+        {isLoading && conversation.length > 0 && conversation[conversation.length - 1].role === "user" && (
+          <div className="flex w-full max-w-3xl flex-col items-start gap-2">
+            <Loader />
+          </div>
+        )}
       </div>
     </div>
   );

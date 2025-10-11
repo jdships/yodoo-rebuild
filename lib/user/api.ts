@@ -1,7 +1,7 @@
 import { isSupabaseEnabled } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
 import {
-    convertFromApiFormat
+  convertFromApiFormat
 } from "@/lib/user-preference-store/utils";
 import type { UserProfile } from "./types";
 
@@ -14,7 +14,10 @@ export async function getSupabaseUser() {
     
     // Handle auth errors gracefully
     if (error) {
-      console.warn("Auth error in getSupabaseUser:", error.message);
+      // Only log non-session-missing errors to reduce noise
+      if (!error.message.includes("Auth session missing")) {
+        console.warn("Auth error in getSupabaseUser:", error.message);
+      }
       return { supabase, user: null };
     }
 
@@ -22,8 +25,11 @@ export async function getSupabaseUser() {
       supabase,
       user: data.user ?? null,
     };
-  } catch (error) {
-    console.error("Unexpected auth error in getSupabaseUser:", error);
+  } catch (error: any) {
+    // Only log unexpected errors (not session-missing errors)
+    if (error?.message && !error.message.includes("Auth session missing")) {
+      console.error("Unexpected auth error in getSupabaseUser:", error);
+    }
     return { supabase, user: null };
   }
 }
@@ -46,12 +52,12 @@ export async function getUserProfile(): Promise<UserProfile | null> {
   if (!userProfileData) return null;
 
   // Format user preferences if they exist
-  const formattedPreferences = userProfileData?.user_preferences
-    ? convertFromApiFormat(userProfileData.user_preferences)
+  const formattedPreferences = (userProfileData as any)?.user_preferences
+    ? convertFromApiFormat((userProfileData as any).user_preferences)
     : undefined;
 
   return {
-    ...userProfileData,
+    ...(userProfileData as any),
     profile_image: user.user_metadata?.avatar_url || null,
     display_name: user.user_metadata?.name || "",
     preferences: formattedPreferences,

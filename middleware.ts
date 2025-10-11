@@ -8,10 +8,14 @@ function isPublicRouteCheck(pathname: string): boolean {
     "/auth",
     "/auth/error", 
     "/auth/callback",
+    "/auth/login",
     "/api/auth",
     "/api/health",
     "/api/csrf",
     "/api/webhook/polar", // Keep webhook accessible
+    "/_next", // Exclude Next.js internals
+    "/favicon.ico",
+    "/opengraph-image.jpg",
   ];
 
   return publicRoutes.some((route) => pathname.startsWith(route));
@@ -64,15 +68,17 @@ export async function middleware(request: NextRequest) {
   const isApiRoute = request.nextUrl.pathname.startsWith("/api/");
 
   if (!isSupabaseEnabled) {
-    if (!isPublicRoute) {
-      return handleUnauthenticatedRequest(request, isApiRoute);
-    }
     return response;
   }
 
-  // Require authentication for all non-public routes
-  if (!isAuthenticated && !isPublicRoute) {
-    return handleUnauthenticatedRequest(request, isApiRoute);
+
+  if (isApiRoute) {
+
+  } else {
+    // For non-API routes, require authentication
+    if (!isAuthenticated && !isPublicRoute) {
+      return handleUnauthenticatedRequest(request, isApiRoute);
+    }
   }
 
   // CSRF protection for state-changing requests (except exempt routes)

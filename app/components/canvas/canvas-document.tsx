@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Download, FileText, MoreHorizontal, Share } from "lucide-react";
+import { CanvasEditor } from "./canvas-editor";
 
 type CanvasDocumentProps = {
   showHeader?: boolean;
@@ -41,16 +42,12 @@ export function CanvasDocument({
       )}
 
       {/* Document content */}
-      <div className="flex-1 overflow-auto h-full">
-        <div className="mx-auto p-8 bg-card h-full">
-          <div className="min-h-full rounded-lg border p-8 bg-sidebar">
-            <textarea
-              value={documentContent}
-              onChange={(e) => onDocumentChange(e.target.value)}
-              className="min-h-[600px] w-full resize-none border-none bg-transparent text-foreground outline-none placeholder:text-muted-foreground"
-              placeholder="Start writing your document..."
-            />
-          </div>
+      <div className="flex-1 overflow-auto h-full w-full">
+        <div className="canvas-editor-container h-full w-full">
+          <CanvasEditor
+            content={documentContent}
+            onChange={onDocumentChange}
+          />
         </div>
       </div>
     </div>
