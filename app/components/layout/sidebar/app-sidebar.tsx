@@ -230,7 +230,7 @@ export function AppSidebar() {
             <Logo className="h-7 pl-2" />
           </Link>
 
-          <motion.div
+          {/* <motion.div
             animate={{ opacity: 1 }}
             className={cn("flex items-center gap-2")}
             initial={{ opacity: 0 }}
@@ -246,7 +246,7 @@ export function AppSidebar() {
                 <X size={24} />
               </button>
             )}
-          </motion.div>
+          </motion.div> */}
         </SidebarHeader>
         <SidebarContent className="gap-4 px-2 py-4 pt-2">
           <SidebarMenu className="gap-0.5">
