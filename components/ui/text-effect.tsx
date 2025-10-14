@@ -17,7 +17,7 @@ export type PresetType = 'blur' | 'fade-in-blur' | 'scale' | 'fade' | 'slide';
 export type PerType = 'word' | 'char' | 'line';
 
 export type TextEffectProps = {
-  children: string;
+  children: React.ReactNode;
   per?: PerType;
   as?: keyof React.JSX.IntrinsicElements;
   variants?: {
@@ -224,7 +224,8 @@ export function TextEffect({
   segmentTransition,
   style,
 }: TextEffectProps) {
-  const segments = splitText(children, per);
+  const isString = typeof children === 'string';
+  const segments = isString ? splitText(children as string, per) : [];
   const MotionTag = motion[as as keyof typeof motion] as typeof motion.div;
 
   const baseVariants = preset
@@ -277,16 +278,22 @@ export function TextEffect({
           onAnimationStart={onAnimationStart}
           style={style}
         >
-          {per !== 'line' ? <span className='sr-only'>{children}</span> : null}
-          {segments.map((segment, index) => (
-            <AnimationComponent
-              key={`${per}-${index}-${segment}`}
-              segment={segment}
-              variants={computedVariants.item}
-              per={per}
-              segmentWrapperClassName={segmentWrapperClassName}
-            />
-          ))}
+          {isString ? (
+            <>
+              {per !== 'line' ? <span className='sr-only'>{children}</span> : null}
+              {segments.map((segment, index) => (
+                <AnimationComponent
+                  key={`${per}-${index}-${segment}`}
+                  segment={segment}
+                  variants={computedVariants.item}
+                  per={per}
+                  segmentWrapperClassName={segmentWrapperClassName}
+                />
+              ))}
+            </>
+          ) : (
+            children
+          )}
         </MotionTag>
       )}
     </AnimatePresence>
