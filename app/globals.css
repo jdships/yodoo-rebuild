@@ -234,7 +234,7 @@ code {
   border-radius: 9999px;
   box-sizing: border-box;
   overflow: hidden;
-  background: linear-gradient(109deg, #3b82f6 9.62%, #9747ff 72.12%);
+  /* Background should be set via inline style for dynamic gradients */
 }
 .gradient-ring-inner {
   border-radius: 9998px;
@@ -247,10 +247,7 @@ code {
 }
 
 @media (prefers-color-scheme: dark) {
-  /* Slightly stronger gradient in dark mode for visibility */
-  .gradient-ring {
-    background: linear-gradient(109deg, #3b82f6 9.62%, #9747ff 72.12%);
-  }
+  /* Dark mode adjustments can be added here if needed */
 }
 
 /* Prevent editor focus stealing when interacting with toolbar */
