@@ -4,8 +4,8 @@
 @plugin "@tailwindcss/typography";
 
 /* Tiptap Editor Styles */
-@import '../styles/_variables.scss';
-@import '../styles/_keyframe-animations.scss';
+@import "../styles/_variables.scss";
+@import "../styles/_keyframe-animations.scss";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -66,14 +66,11 @@
   --radius-xl: calc(var(--radius) + 4px);
 
   --spacing-scroll-area: calc(
-    -1 *
-    (var(--spacing-input-area) + var(--spacing-app-header))
+    -1 * (var(--spacing-input-area) + var(--spacing-app-header))
   );
   --spacing-scroll-anchor-offset: 140px;
   --spacing-scroll-anchor: calc(
-    var(--spacing-scroll-area) -
-    var(--spacing-scroll-anchor-offset) +
-    100dvh
+    var(--spacing-scroll-area) - var(--spacing-scroll-anchor-offset) + 100dvh
   );
 }
 
@@ -157,6 +154,29 @@
   }
 }
 
+/* Logo float fallback animation */
+@keyframes logoFloat {
+  0% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-4px) scale(1.02);
+  }
+  100% {
+    transform: translateY(0) scale(1);
+  }
+}
+
+.logo-float {
+  animation: logoFloat 4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .logo-float {
+    animation: none !important;
+  }
+}
+
 code {
   font-family: var(--font-geist-mono);
   font-feature-settings: var(--default-mono-font-feature-settings);
@@ -184,7 +204,9 @@ code {
 }
 
 /* Match header padding (px-4 = 1rem) */
-.canvas-editor-container .simple-editor-content .tiptap.ProseMirror.simple-editor {
+.canvas-editor-container
+  .simple-editor-content
+  .tiptap.ProseMirror.simple-editor {
   padding: 1rem 1rem 30vh !important;
   margin-top: 30px;
   margin-left: 2rem;
@@ -203,6 +225,32 @@ code {
 
 .tiptap-dropdown-menu {
   z-index: 9999 !important;
+}
+
+/* Gradient ring helper (use on wrappers) */
+.gradient-ring {
+  display: inline-block;
+  padding: 1px; /* thickness */
+  border-radius: 9999px;
+  box-sizing: border-box;
+  overflow: hidden;
+  background: linear-gradient(109deg, #3b82f6 9.62%, #9747ff 72.12%);
+}
+.gradient-ring-inner {
+  border-radius: 9998px;
+  background: var(--card);
+}
+.gradient-ring .btn-reset {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+@media (prefers-color-scheme: dark) {
+  /* Slightly stronger gradient in dark mode for visibility */
+  .gradient-ring {
+    background: linear-gradient(109deg, #3b82f6 9.62%, #9747ff 72.12%);
+  }
 }
 
 /* Prevent editor focus stealing when interacting with toolbar */
