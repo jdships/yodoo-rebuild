@@ -9,9 +9,11 @@ import { SYSTEM_PROMPT_DEFAULT } from "@/lib/config";
 import { useModel } from "@/lib/model-store/provider";
 import { useUser } from "@/lib/user-store/provider";
 import type { Message as MessageType } from "ai/react";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { MultiChatInput } from "./multi-chat-input";
 import { useMultiChat } from "./use-multi-chat";
+import Image from "next/image";
+import { useTheme } from "next-themes";
 
 type ChatInstanceData = {
   modelId: string;
@@ -23,6 +25,7 @@ type ChatInstanceData = {
 };
 
 export function MultiChat() {
+  const { theme } = useTheme();
   const [prompt, setPrompt] = useState("");
   const [selectedModelIds, setSelectedModelIds] = useState<string[]>([]);
   const [files, setFiles] = useState<File[]>([]);
@@ -35,6 +38,13 @@ export function MultiChat() {
   const { messages: persistedMessages, isLoading: messagesLoading } =
     useMessages();
   const { createNewChat } = useChats();
+
+    const [mounted, setMounted] = useState(false);
+  
+  // Prevent hydration mismatch
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   console.log('MultiChat render:', {
     chatId,
@@ -294,6 +304,19 @@ export function MultiChat() {
     return (
       <div className="flex h-full flex-col">
         <div className="flex flex-1 flex-col items-center justify-center">
+           {/* Yodoo Logo */}
+                {mounted && (
+                  <div className="mb-8 flex justify-center">
+                    <Image
+                      src={theme === "dark" ? "/yodoo-logo-dark.png" : "/yodoo-logo-light.png"}
+                      alt="Yodoo Logo"
+                      width={120}
+                      height={40}
+                      className="h-auto w-auto"
+                      priority
+                    />
+                  </div>
+                )}
           <div className="mx-auto max-w-[50rem] text-center">
             <h1 className="mb-6 font-medium text-3xl tracking-tight">
               What's on your mind?
