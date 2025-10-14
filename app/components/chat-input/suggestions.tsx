@@ -15,6 +15,8 @@ type SuggestionsProps = {
 
 const MotionPromptSuggestion = motion.create(PromptSuggestion);
 
+const gradientBorder = 'linear-gradient(109deg, #3B82F6 9.62%, #9747FF 72.12%)';
+
 export const Suggestions = memo(function Suggestions({
   onValueChange,
   onSuggestion,
@@ -70,13 +72,14 @@ export const Suggestions = memo(function Suggestions({
           animate: { opacity: 1, y: 0, filter: "blur(0px)" },
         }}
       >
-        {SUGGESTIONS_CONFIG.map((suggestion, index) => (
-          <MotionPromptSuggestion
+    {SUGGESTIONS_CONFIG.map((suggestion, index) => (
+      <MotionPromptSuggestion
             animate="animate"
             className="capitalize"
             initial="initial"
             key={suggestion.label}
             onClick={() => handleCategoryClick(suggestion)}
+            gradient={gradientBorder}
             transition={{
               ...TRANSITION_SUGGESTIONS,
               delay: index * 0.02,
@@ -85,10 +88,10 @@ export const Suggestions = memo(function Suggestions({
               initial: { opacity: 0, scale: 0.8 },
               animate: { opacity: 1, scale: 1 },
             }}
-          >
+            >
             <suggestion.icon className="size-4" />
             {suggestion.label}
-          </MotionPromptSuggestion>
+            </MotionPromptSuggestion>
         ))}
       </motion.div>
     ),
@@ -130,6 +133,7 @@ export const Suggestions = memo(function Suggestions({
               initial: { opacity: 0, y: -10 },
               animate: { opacity: 1, y: 0 },
             }}
+            gradient={gradientBorder}
           >
             {suggestion}
           </MotionPromptSuggestion>
