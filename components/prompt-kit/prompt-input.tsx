@@ -77,15 +77,26 @@ function PromptInput({
       }}
     >
       <div
-        className={cn(
-          "cursor-text rounded-lg border border-input bg-background p-2 shadow-xs",
-          className
-        )}
-        onClick={() => {
-          textareaRef.current?.focus();
+        className="gradient-ring w-full"
+        style={{ 
+          background: 'linear-gradient(109deg, #3B82F6 9.62%, #9747FF 72.12%)',
+          borderRadius: 12,
+          padding: 2
         }}
       >
-        {children}
+        <div className="gradient-ring-inner w-full" style={{ borderRadius: 10 }}>
+          <div
+            className={cn(
+              "cursor-text rounded-lg bg-background p-2 shadow-xs border-none w-full",
+              className
+            )}
+            onClick={() => {
+              textareaRef.current?.focus();
+            }}
+          >
+            {children}
+          </div>
+        </div>
       </div>
     </PromptInputContext.Provider>
   );

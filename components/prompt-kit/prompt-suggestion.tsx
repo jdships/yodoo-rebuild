@@ -10,6 +10,8 @@ export type PromptSuggestionProps = {
   size?: VariantProps<typeof buttonVariants>["size"];
   className?: string;
   highlight?: string;
+  /** Optional CSS gradient string (e.g. 'linear-gradient(...)') to render a rounded gradient ring */
+  gradient?: string;
 } & React.ButtonHTMLAttributes<HTMLButtonElement>;
 
 function PromptSuggestion({
@@ -18,30 +20,45 @@ function PromptSuggestion({
   size,
   className,
   highlight,
+  gradient,
   ...props
 }: PromptSuggestionProps) {
   const isHighlightMode = highlight !== undefined && highlight.trim() !== "";
   const content = typeof children === "string" ? children : "";
 
   if (!isHighlightMode) {
-    return (
+    const button = (
       <Button
-        className={cn("rounded-full text-xs", className)}
+        className={cn("rounded-full text-xs", gradient ? 'btn-reset' : '', className)}
         size={size || "sm"}
         variant={variant || "outline"}
         {...props}
+        style={{ ...(props.style || {}), background: 'transparent', border: 'none', boxShadow: 'none' }}
       >
         {children}
       </Button>
     );
+
+    // If a gradient is provided, wrap the button to create a rounded gradient ring
+    if (gradient) {
+      return (
+        <div className="gradient-ring" style={{ background: gradient }}>
+          <div className="gradient-ring-inner">
+            {button}
+          </div>
+        </div>
+      );
+    }
+
+    return button;
   }
 
   if (!content) {
     return (
       <Button
         className={cn(
-          "w-full justify-start rounded-xl py-2",
-          "hover:bg-accent",
+    "w-full justify-start rounded-xl py-2",
+    "hover:bg-transparent",
           className
         )}
         size={size || "sm"}
@@ -53,21 +70,22 @@ function PromptSuggestion({
     );
   }
 
-  const trimmedHighlight = highlight.trim();
+  const trimmedHighlight = highlight!.trim();
   const contentLower = content.toLowerCase();
   const highlightLower = trimmedHighlight.toLowerCase();
   const shouldHighlight = contentLower.includes(highlightLower);
-
-  return (
+  const innerButton = (
     <Button
       className={cn(
-        "w-full justify-start gap-0 rounded-xl py-2",
-        "hover:bg-accent",
+  "w-full justify-start gap-0 rounded-xl py-2",
+  "hover:bg-transparent",
+        gradient ? 'btn-reset' : '',
         className
       )}
       size={size || "sm"}
       variant={variant || "ghost"}
       {...props}
+      style={{ ...(props.style || {}), background: 'transparent', border: 'none', boxShadow: 'none' }}
     >
       {shouldHighlight ? (
         (() => {
@@ -112,6 +130,18 @@ function PromptSuggestion({
       )}
     </Button>
   );
+
+  if (gradient) {
+    return (
+      <div className="gradient-ring" style={{ borderRadius: 12, padding: 2, background: gradient }}>
+        <div className="gradient-ring-inner" style={{ borderRadius: 11 }}>
+          {innerButton}
+        </div>
+      </div>
+    );
+  }
+
+  return innerButton;
 }
 
 export { PromptSuggestion };

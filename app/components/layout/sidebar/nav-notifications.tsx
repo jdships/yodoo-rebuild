@@ -20,24 +20,42 @@ type Notification = {
   time: string;
 };
 
+type NotificationsPopoverProps = {
+  notifications: Notification[];
+  isMobile?: boolean;
+  showCount?: boolean;
+  count?: number;
+};
+
 export function NotificationsPopover({
   notifications,
-}: {
-  notifications: Notification[];
-}) {
+  isMobile = false,
+  showCount = true,
+  count,
+}: NotificationsPopoverProps) {
+  const displayCount = typeof count === "number" ? count : notifications.length;
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button
           aria-label="Open notifications"
-          className="rounded-full"
+          className="rounded-full relative"
           size="icon"
           variant="ghost"
         >
-          <BellIcon className="size-4" />
+          <BellIcon className="h-4 w-4" />
+          {showCount && displayCount > 0 && (
+            <span className="absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-600 px-1 text-[10px] font-medium text-white">
+              {displayCount > 99 ? "99+" : displayCount}
+            </span>
+          )}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="my-6 w-80" side="right">
+      <DropdownMenuContent 
+        className={`my-10 w-80 ${isMobile ? 'mt-4' : ''}`} 
+        side={isMobile ? "bottom" : "right"}
+        align={isMobile ? "end" : "start"}
+      >
         <DropdownMenuLabel>Notifications</DropdownMenuLabel>
         <DropdownMenuSeparator />
         {notifications.map(({ id, avatar, fallback, text, time }) => (

@@ -2,6 +2,7 @@
 
 import { useUsage } from "@/app/hooks/use-usage";
 import { ModelSelector } from "@/components/common/model-selector/base";
+import { SendArrowIcon } from "@/components/icons/send-arrow";
 import {
   PromptInput,
   PromptInputAction,
@@ -17,7 +18,7 @@ import {
   isSlashCommand
 } from "@/lib/slash-commands";
 import type { ToolConfig } from "@/lib/tools/types";
-import { ArrowUpIcon, StopIcon } from "@phosphor-icons/react";
+import { StopIcon } from "@phosphor-icons/react";
 import { Crown, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -248,7 +249,7 @@ export function ChatInput({
         />
       )}
       <div
-        className={`relative order-2 px-2 md:order-1 ${compact ? 'pb-1' : 'pb-3 sm:pb-4'}`}
+        className={`relative px-2 md:order-1 ${compact ? 'pb-1' : 'pb-3 sm:pb-4'}`}
         onClick={() => textareaRef.current?.focus()}
       >
         <PromptInput
@@ -324,7 +325,7 @@ export function ChatInput({
                 ) : status === "streaming" ? (
                   <StopIcon className="size-4" />
                 ) : (
-                  <ArrowUpIcon className="size-4" />
+                  <SendArrowIcon className="size-4" />
                 )}
               </Button>
             </PromptInputAction>
@@ -333,7 +334,7 @@ export function ChatInput({
         
         {/* Tools Container - attached to input like Genspark */}
         {showTools && (
-          <div className="mx-3 mb-3 rounded-b-lg border-r border-l border-b border-t-none bg-sidebar p-1 backdrop-blur-sm">
+          <div className="mx-3 mb-3 -mt-1 rounded-b-lg border-r border-l border-b border-t-none bg-sidebar p-1 backdrop-blur-sm">
             <ToolsContainer
               onToolSelect={handleToolSelect}
               selectedTools={selectedTools}

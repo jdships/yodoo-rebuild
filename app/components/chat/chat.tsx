@@ -15,10 +15,12 @@ import { cn } from "@/lib/utils";
 import { AnimatePresence, motion } from "motion/react";
 import dynamic from "next/dynamic";
 import { redirect } from "next/navigation";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useState, useEffect } from "react";
 import { useChatCore } from "./use-chat-core";
 import { useChatOperations } from "./use-chat-operations";
 import { useFileUpload } from "./use-file-upload";
+import Image from "next/image";
+import { useTheme } from "next-themes";
 
 const DialogAuth = dynamic(
   () => import("./dialog-auth").then((mod) => mod.DialogAuth),
@@ -66,6 +68,20 @@ export function Chat() {
 
   // State to pass between hooks
   const [hasDialogAuth, setHasDialogAuth] = useState(false);
+  const { theme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+  
+  // Prevent hydration mismatch
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const logoVariants = {
+    hidden: { opacity: 0, y: 6, scale: 0.98 },
+    visible: { opacity: 1, y: 0, scale: 1 },
+    exit: { opacity: 0, y: 6 },
+  };
+  
   const isAuthenticated = useMemo(() => !!user?.id, [user?.id]);
   const systemPrompt = useMemo(
     () => user?.system_prompt || SYSTEM_PROMPT_DEFAULT,
@@ -214,57 +230,98 @@ export function Chat() {
   return (
     <div
       className={cn(
-        "@container/main relative flex h-full flex-col items-center justify-end",
-        showOnboarding && "md:justify-center md:pb-[56px]"
+      "@container/main relative flex h-full flex-col items-center justify-center",
+      "px-4"
       )}
     >
       <DialogAuth open={hasDialogAuth} setOpen={setHasDialogAuth} />
-
       <AnimatePresence initial={false} mode="popLayout">
-        {showOnboarding ? (
-          <motion.div
-            animate={{ opacity: 1 }}
-            className="absolute bottom-[60%] mx-auto max-w-[50rem] md:relative md:bottom-auto"
-            exit={{ opacity: 0 }}
-            initial={{ opacity: 0 }}
-            key="onboarding"
-            layout="position"
-            layoutId="onboarding"
-            transition={{
-              layout: {
-                duration: 0,
-              },
-            }}
-          >
-            <TextEffect
-              as="h1"
-              className="mb-6 font-medium text-3xl tracking-tight"
-              per="char"
-              preset="fade"
+      {showOnboarding ? (
+        <motion.div
+        animate={{ opacity: 1 }}
+        className="mx-auto max-w-md text-center"
+        exit={{ opacity: 0 }}
+        initial={{ opacity: 0 }}
+        key="onboarding"
+        layout="position"
+        layoutId="onboarding"
+        transition={{
+          layout: {
+          duration: 0,
+          },
+        }}
+        >
+        {/* Yodoo Logo */}
+        <AnimatePresence mode="wait">
+          {mounted && (
+            <motion.div
+              key="yodoo-logo"
+              className="mb-8 flex justify-center logo-float"
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              variants={logoVariants}
+              transition={{ duration: 0.55, ease: "easeOut" }}
             >
-              {user?.display_name
-                ? `Welcome back, ${user.display_name}.`
-                : "Welcome back."}
-            </TextEffect>
-          </motion.div>
-        ) : (
-          <Conversation key="conversation" {...conversationProps} />
-        )}
+              <Image
+                src={theme === "dark" ? "/yodoo-logo-dark.png" : "/yodoo-logo-light.png"}
+                alt="Yodoo Logo"
+                width={120}
+                height={40}
+                className="h-auto w-auto"
+                priority
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
+        
+     
+        <TextEffect
+          as="h1"
+          className="mb-6 font-medium text-2xl tracking-tight"
+          per="char"
+          preset="fade"
+        >
+          {user?.display_name ? (
+            <>
+              {"Welcome back, "}
+              <span
+                style={{
+                  backgroundImage: 'linear-gradient(109deg, #3B82F6 9.62%, #9747FF 72.12%)',
+                  backgroundClip: 'text',
+                  WebkitBackgroundClip: 'text',
+                  color: 'transparent',
+                  WebkitTextFillColor: 'transparent',
+                }}
+              >
+                {user.display_name}
+              </span>
+              
+            </>
+          ) : (
+            "Welcome back."
+          )}
+        </TextEffect>
+        
+        </motion.div>
+      ) : (
+        <Conversation key="conversation" {...conversationProps} />
+      )}
       </AnimatePresence>
 
       <motion.div
-        className={cn(
-          "relative inset-x-0 bottom-0 z-50 mx-auto w-full max-w-3xl"
-        )}
-        layout="position"
-        layoutId="chat-input-container"
-        transition={{
-          layout: {
-            duration: messages.length === 1 ? 0.3 : 0,
-          },
-        }}
+      className={cn(
+        "relative inset-x-0 bottom-0 z-50 mx-auto w-full max-w-2xl"
+      )}
+      layout="position"
+      layoutId="chat-input-container"
+      transition={{
+        layout: {
+        duration: messages.length === 1 ? 0.3 : 0,
+        },
+      }}
       >
-        <ChatInput {...chatInputProps} />
+      <ChatInput {...chatInputProps} />
       </motion.div>
     </div>
   );
