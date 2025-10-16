@@ -1,8 +1,16 @@
 "use client";
 
-import { UserMessage } from "@/app/hooks/use-canvas-responses";
+// import { UserMessage } from "@/app/hooks/use-canvas-responses";
 import { cn } from "@/lib/utils";
 import { User } from "lucide-react";
+
+type UserMessage = {
+  id: string;
+  content: string;
+  role: string;
+  created_at?: string;
+  timestamp: Date;
+};
 
 type CanvasMessageHistoryProps = {
   messages: UserMessage[];

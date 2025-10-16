@@ -28,7 +28,7 @@ const isProModel = (modelId: string) => !isFreeModel(modelId)
  * @throws UsageLimitError if the limit is reached, or a generic Error if checking fails.
  * @returns User data including message counts and limits
  */
-export async function checkUsage(supabase: SupabaseClient, userId: string) {
+export async function checkUsage(supabase: SupabaseClient<any, "public", any>, userId: string) {
   const { data: userData, error: userDataError } = await supabase
     .from("users")
     .select(
@@ -119,7 +119,7 @@ export async function checkUsage(supabase: SupabaseClient, userId: string) {
  * @throws Error if updating fails.
  */
 export async function incrementUsage(
-  supabase: SupabaseClient,
+  supabase: SupabaseClient<any, "public", any>,
   userId: string
 ): Promise<void> {
   const { data: userData, error: userDataError } = await supabase
@@ -156,7 +156,7 @@ export async function incrementUsage(
   }
 }
 
-export async function checkProUsage(supabase: SupabaseClient, userId: string) {
+export async function checkProUsage(supabase: SupabaseClient<any, "public", any>, userId: string) {
   const { data: userData, error: userDataError } = await supabase
     .from("users")
     .select("daily_pro_message_count, daily_pro_reset")
@@ -208,7 +208,7 @@ export async function checkProUsage(supabase: SupabaseClient, userId: string) {
 }
 
 export async function incrementProUsage(
-  supabase: SupabaseClient,
+  supabase: SupabaseClient<any, "public", any>,
   userId: string
 ) {
   const { data, error } = await supabase
@@ -237,7 +237,7 @@ export async function incrementProUsage(
 }
 
 export async function checkUsageByModel(
-  supabase: SupabaseClient,
+  supabase: SupabaseClient<any, "public", any>,
   userId: string,
   modelId: string,
   isAuthenticated: boolean
@@ -255,7 +255,7 @@ export async function checkUsageByModel(
 }
 
 export async function incrementUsageByModel(
-  supabase: SupabaseClient,
+  supabase: SupabaseClient<any, "public", any>,
   userId: string,
   modelId: string,
   isAuthenticated: boolean

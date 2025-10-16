@@ -1,8 +1,8 @@
-import type { Metadata } from "next";
-import { notFound, redirect } from "next/navigation";
 import { APP_DOMAIN } from "@/lib/config";
 import { isSupabaseEnabled } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
+import type { Metadata } from "next";
+import { notFound, redirect } from "next/navigation";
 import Article from "./article";
 
 export const dynamic = "force-static";
@@ -29,7 +29,7 @@ export async function generateMetadata({
     .eq("id", chatId)
     .single();
 
-  const title = chat?.title || "Chat";
+  const title = (chat as any)?.title || "Chat";
   const description = "A chat in Yodoo";
 
   return {
@@ -87,10 +87,10 @@ export default async function ShareChat({
 
   return (
     <Article
-      date={chatData.created_at || ""}
+      date={(chatData as any).created_at || ""}
       messages={messagesData}
       subtitle={"A conversation in Yodoo"}
-      title={chatData.title || ""}
+      title={(chatData as any).title || ""}
     />
   );
 }

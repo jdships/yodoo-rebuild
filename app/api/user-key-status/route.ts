@@ -1,6 +1,6 @@
-import { NextResponse } from "next/server";
 import { PROVIDERS } from "@/lib/providers";
 import { createClient } from "@/lib/supabase/server";
+import { NextResponse } from "next/server";
 
 const SUPPORTED_PROVIDERS = PROVIDERS.map((p) => p.id);
 
@@ -30,7 +30,7 @@ export async function GET() {
     }
 
     // Create status object for all supported providers
-    const userProviders = data?.map((k) => k.provider) || [];
+    const userProviders = data?.map((k: any) => k.provider) || [];
     const providerStatus = SUPPORTED_PROVIDERS.reduce(
       (acc, provider) => {
         acc[provider] = userProviders.includes(provider);

@@ -29,14 +29,14 @@ export async function getMessagesFromDb(
   }
 
   return data.map((message) => ({
-    ...message,
-    id: String(message.id),
-    content: message.content ?? "",
-    createdAt: new Date(message.created_at || ""),
-    parts: (message?.parts as MessageAisdk["parts"]) || undefined,
-    experimental_attachments: message.experimental_attachments || undefined,
-    message_group_id: message.message_group_id,
-    model: message.model,
+    ...(message as any),
+    id: String((message as any).id),
+    content: (message as any).content ?? "",
+    createdAt: new Date((message as any).created_at || ""),
+    parts: ((message as any)?.parts as MessageAisdk["parts"]) || undefined,
+    experimental_attachments: (message as any).experimental_attachments || undefined,
+    message_group_id: (message as any).message_group_id,
+    model: (message as any).model,
   }));
 }
 
@@ -44,7 +44,7 @@ async function insertMessageToDb(chatId: string, message: MessageAisdk) {
   const supabase = createClient();
   if (!supabase) return;
 
-  await supabase.from("messages").insert({
+  await (supabase as any).from("messages").insert({
     chat_id: chatId,
     role: message.role,
     content: message.content,
@@ -69,7 +69,7 @@ async function insertMessagesToDb(chatId: string, messages: MessageAisdk[]) {
     model: (message as any).model || null,
   }));
 
-  await supabase.from("messages").insert(payload);
+  await (supabase as any).from("messages").insert(payload);
 }
 
 async function deleteMessagesFromDb(chatId: string) {

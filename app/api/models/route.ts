@@ -1,11 +1,11 @@
-import { NextResponse } from "next/server";
 import {
-  getAllModels,
-  getModelsForUserProviders,
-  getModelsWithAccessFlags,
-  refreshModelsCache,
+    getAllModels,
+    getModelsForUserProviders,
+    getModelsWithAccessFlags,
+    refreshModelsCache,
 } from "@/lib/models";
 import { createClient } from "@/lib/supabase/server";
+import { NextResponse } from "next/server";
 
 export async function GET() {
   try {
@@ -37,7 +37,7 @@ export async function GET() {
       });
     }
 
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .from("user_keys")
       .select("provider")
       .eq("user_id", authData.user.id);
@@ -53,7 +53,7 @@ export async function GET() {
       });
     }
 
-    const userProviders = data?.map((k) => k.provider) || [];
+    const userProviders = data?.map((k: any) => k.provider) || [];
 
     if (userProviders.length === 0) {
       const models = await getModelsWithAccessFlags();

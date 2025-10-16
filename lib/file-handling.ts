@@ -104,11 +104,11 @@ export async function processFiles(
 
     try {
       const url = supabase
-        ? await uploadFile(supabase, file)
+        ? await uploadFile(supabase as any, file)
         : URL.createObjectURL(file)
 
       if (supabase) {
-        const { error } = await supabase.from("chat_attachments").insert({
+        const { error } = await (supabase as any).from("chat_attachments").insert({
           chat_id: chatId,
           user_id: userId,
           file_url: url,

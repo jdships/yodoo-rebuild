@@ -22,7 +22,7 @@ export default function LoginPage() {
       setIsLoading(true);
       setError(null);
 
-      const data = await signInWithGoogle(supabase);
+      const data = await signInWithGoogle(supabase as any);
 
       // Redirect to the provider URL
       if (data?.url) {

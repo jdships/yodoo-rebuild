@@ -7,14 +7,14 @@ import type { LanguageModelV1 } from "@ai-sdk/provider"
 import { createXai, xai } from "@ai-sdk/xai"
 import { getProviderForModel } from "./provider-map"
 import type {
-  AnthropicModel,
-  GeminiModel,
-  MistralModel,
-  OllamaModel,
-  OpenAIModel,
-  PerplexityModel,
-  SupportedModel,
-  XaiModel,
+    AnthropicModel,
+    GeminiModel,
+    MistralModel,
+    OllamaModel,
+    OpenAIModel,
+    PerplexityModel,
+    SupportedModel,
+    XaiModel,
 } from "./types"
 
 type OpenAIChatSettings = Parameters<typeof openai>[1]

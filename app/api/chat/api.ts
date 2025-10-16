@@ -5,6 +5,7 @@ import type {
   StoreAssistantMessageParams,
   SupabaseClientType,
 } from "@/app/types/api.types";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { FREE_MODELS_IDS } from "@/lib/config";
 import { getProviderForModel } from "@/lib/openproviders/provider-map";
 import { sanitizeUserInput } from "@/lib/sanitize";
@@ -16,7 +17,7 @@ export async function validateAndTrackUsage({
   userId,
   model,
   isAuthenticated,
-}: ChatApiParams): Promise<SupabaseClientType | null> {
+}: ChatApiParams): Promise<SupabaseClient<any, "public", any> | null> {
   const supabase = await validateUserIdentity(userId, isAuthenticated);
   if (!supabase) {
     return null;

@@ -4,25 +4,25 @@ import { useBreakpoint } from "@/app/hooks/use-breakpoint";
 import XIcon from "@/components/icons/x";
 import { Button } from "@/components/ui/button";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
 } from "@/components/ui/dialog";
 import {
-  Drawer,
-  DrawerContent,
-  DrawerDescription,
-  DrawerHeader,
-  DrawerTitle,
+    Drawer,
+    DrawerContent,
+    DrawerDescription,
+    DrawerHeader,
+    DrawerTitle,
 } from "@/components/ui/drawer";
 import { Input } from "@/components/ui/input";
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useChatSession } from "@/lib/chat-store/session/provider";
 import { APP_DOMAIN } from "@/lib/config";
@@ -70,7 +70,7 @@ export function DialogPublish() {
       throw new Error("Supabase is not configured");
     }
 
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .from("chats")
       .update({ public: true })
       .eq("id", chatId)

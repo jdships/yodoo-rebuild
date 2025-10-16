@@ -21,9 +21,9 @@ export async function fetchUserProfile(
   }
 
   return {
-    ...data,
-    profile_image: data.profile_image || null,
-    display_name: data.display_name || "",
+    ...(data as any),
+    profile_image: (data as any).profile_image || null,
+    display_name: (data as any).display_name || "",
   };
 }
 
@@ -34,7 +34,7 @@ export async function updateUserProfile(
   const supabase = createClient();
   if (!supabase) return false;
 
-  const { error } = await supabase.from("users").update(updates).eq("id", id);
+  const { error } = await (supabase as any).from("users").update(updates).eq("id", id);
 
   if (error) {
     console.error("Failed to update user:", error);

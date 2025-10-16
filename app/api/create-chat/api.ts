@@ -45,7 +45,7 @@ export async function createChatInDb({
     insertData.project_id = projectId;
   }
 
-  const { data, error } = await supabase
+  const { data, error } = await (supabase as any)
     .from("chats")
     .insert(insertData)
     .select("*")

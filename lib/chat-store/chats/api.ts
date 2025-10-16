@@ -33,7 +33,7 @@ export async function updateChatTitleInDb(id: string, title: string) {
   const supabase = createClient();
   if (!supabase) return;
 
-  const { error } = await supabase
+  const { error } = await (supabase as any)
     .from("chats")
     .update({ title, updated_at: new Date().toISOString() })
     .eq("id", id);
@@ -73,12 +73,12 @@ export async function createChatInDb(
 
   const { data, error } = await supabase
     .from("chats")
-    .insert({ user_id: userId, title, model, system_prompt: systemPrompt })
+    .insert({ user_id: userId, title, model, system_prompt: systemPrompt } as any)
     .select("id")
     .single();
 
-  if (error || !data?.id) return null;
-  return data.id;
+  if (error || !(data as any)?.id) return null;
+  return (data as any).id;
 }
 
 export async function fetchAndCacheChats(userId: string): Promise<Chats[]> {

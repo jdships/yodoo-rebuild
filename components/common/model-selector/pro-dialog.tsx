@@ -4,17 +4,17 @@ import { useBreakpoint } from "@/app/hooks/use-breakpoint";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
 } from "@/components/ui/dialog";
 import {
-  Drawer,
-  DrawerContent,
-  DrawerHeader,
-  DrawerTitle,
+    Drawer,
+    DrawerContent,
+    DrawerHeader,
+    DrawerTitle,
 } from "@/components/ui/drawer";
 import { APP_NAME } from "@/lib/config";
 import { createClient } from "@/lib/supabase/client";
@@ -46,7 +46,7 @@ export function ProModelDialog({
       if (!supabase) {
         throw new Error("Missing supabase");
       }
-      const { error } = await supabase.from("feedback").insert({
+      const { error } = await (supabase as any).from("feedback").insert({
         message: `I want access to ${currentModel}`,
         // biome-ignore lint/style/useNamingConvention: Database column name must match schema
         user_id: user.id,
